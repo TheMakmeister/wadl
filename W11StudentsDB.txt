@@ -1,0 +1,547 @@
+Students
+
+FRONTEND
+
+import { useEffect, useState } from "react";
+import axios from "axios";
+import "./App.css";
+
+const BACK_API = "http://localhost:5000";
+
+function App() {
+  const [formData, setFormData] = useState({
+    name: "",
+    rollNo: "",
+    wadmarks: "",
+    ccmarks: "",
+    dsbdamarks: "",
+    cnsmarks: "",
+    aimarks: "",
+  });
+
+  const [uRollNo, setURollNo] = useState("");
+  const [dRollNo, setDRollNo] = useState("");
+  const [students, setStudents] = useState("");
+  const [dsbdaStudents, setDsbdaStudents] = useState("");
+  const [allSubjects, setAllSubjects] = useState("");
+  const [lessThan, setLessThan] = useState("");
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+  };
+
+  const handleInsertData = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axios.post(`${BACK_API}/insert`, formData);
+      console.log(response.data);
+      setFormData({
+        name: "",
+        rollNo: "",
+        wadmarks: "",
+        ccmarks: "",
+        dsbdamarks: "",
+        cnsmarks: "",
+        aimarks: "",
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleUpdate = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axios.patch(`${BACK_API}/update/${uRollNo}`);
+      alert(`${uRollNo} Marks Updated Successfully`);
+      console.log(response.data);
+      setURollNo("");
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleDelete = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axios.delete(`${BACK_API}/delete/${dRollNo}`);
+      alert(`${dRollNo} Deleted Successfully`);
+      console.log(response.data);
+      setDRollNo("");
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const response1 = await axios.get(`${BACK_API}/list`);
+      setStudents(response1.data.students);
+
+      const response2 = await axios.get(`${BACK_API}/dsbda`);
+      setDsbdaStudents(response2.data.name);
+
+      const response3 = await axios.get(`${BACK_API}/allSubjects`);
+      setAllSubjects(response3.data.name);
+
+      const response4 = await axios.get(`${BACK_API}/lessThan`);
+      setLessThan(response4.data.name);
+    };
+    fetchData();
+  }, [formData, uRollNo, dRollNo]);
+
+  return (
+    <>
+      <div>
+        <h2>Add Student Marks</h2>
+        <form onSubmit={handleInsertData}>
+          <label>Name </label>
+          <input
+            type="text"
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
+            required
+          />
+          <label>Roll No </label>
+          <input
+            type="number"
+            name="rollNo"
+            value={formData.rollNo}
+            onChange={handleChange}
+            required
+          />
+          <label>WAD Marks </label>
+          <input
+            type="number"
+            name="wadmarks"
+            value={formData.wadmarks}
+            onChange={handleChange}
+            required
+          />
+          <label>CC Marks </label>
+          <input
+            type="number"
+            name="ccmarks"
+            value={formData.ccmarks}
+            onChange={handleChange}
+            required
+          />
+          <label>DSBDA Marks </label>
+          <input
+            type="number"
+            name="dsbdamarks"
+            value={formData.dsbdamarks}
+            onChange={handleChange}
+            required
+          />
+          <label>CNS Marks </label>
+          <input
+            type="number"
+            name="cnsmarks"
+            value={formData.cnsmarks}
+            onChange={handleChange}
+            required
+          />
+          <label>AI Marks </label>
+          <input
+            type="number"
+            name="aimarks"
+            value={formData.aimarks}
+            onChange={handleChange}
+            required
+          />
+          <button type="submit">Add Marks</button>
+        </form>
+      </div>
+
+      <div>
+        <h2>Update Student Marks by 10</h2>
+        <form onSubmit={handleUpdate}>
+          <label>Roll No </label>
+          <input
+            type="number"
+            value={uRollNo}
+            onChange={(e) => setURollNo(e.target.value)}
+            required
+          />
+          <button type="submit">Update Marks</button>
+        </form>
+      </div>
+
+      <div>
+        <h2>Delete Student</h2>
+        <form onSubmit={handleDelete}>
+          <label>Roll No </label>
+          <input
+            type="number"
+            value={dRollNo}
+            onChange={(e) => setDRollNo(e.target.value)}
+            required
+          />
+          <button type="submit">Delete Student</button>
+        </form>
+      </div>
+
+      {students && (
+        <div>
+          <h2>Student Database</h2>
+          <h3>Total Students : {students.length}</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Roll No</th>
+                <th>Wad Marks</th>
+                <th>CC Marks</th>
+                <th>DSBDA Marks</th>
+                <th>CNS Marks</th>
+                <th>AI Marks</th>
+              </tr>
+            </thead>
+            <tbody>
+              {students &&
+                students.map((student, index) => (
+                  <tr key={index}>
+                    <td>{student.name}</td>
+                    <td>{student.rollNo}</td>
+                    <td>{student.wadmarks}</td>
+                    <td>{student.ccmarks}</td>
+                    <td>{student.dsbdamarks}</td>
+                    <td>{student.cnsmarks}</td>
+                    <td>{student.aimarks}</td>
+                  </tr>
+                ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {dsbdaStudents && (
+        <div>
+          <h2>More than 20 Marks in DSBDA</h2>
+          <h3>Total Students : {dsbdaStudents.length}</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+              </tr>
+            </thead>
+            <tbody>
+              {dsbdaStudents &&
+                dsbdaStudents.map((name, index) => (
+                  <tr key={index}>
+                    <td>{name}</td>
+                  </tr>
+                ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {allSubjects && (
+        <div>
+          <h2>More than 20 Marks in all Subjects</h2>
+          <h3>Total Students : {allSubjects.length}</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+              </tr>
+            </thead>
+            <tbody>
+              {allSubjects &&
+                allSubjects.map((name, index) => (
+                  <tr key={index}>
+                    <td>{name}</td>
+                  </tr>
+                ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {lessThan && (
+        <div>
+          <h2>More than 40 Marks in WAD & DSBDA</h2>
+          <h3>Total Students : {lessThan.length}</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+              </tr>
+            </thead>
+            <tbody>
+              {lessThan &&
+                lessThan.map((name, index) => (
+                  <tr key={index}>
+                    <td>{name}</td>
+                  </tr>
+                ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </>
+  );
+}
+
+export default App;
+
+
+app.css
+
+form{
+    display: flex;
+    flex-direction: column;
+    justify-items: center;
+    align-items: center;
+}
+
+input{
+    width: 500px;
+    padding: 4px;
+    margin: 7px;
+}
+
+h2{
+    text-align: center;
+    margin-bottom: 20px;
+}
+h3{
+    text-align: center;
+}
+
+button{
+    color: blue;
+    background-color: yellow;
+    padding: 10px;
+    margin: 10px;
+    font-size: large;
+
+}
+
+table {
+    border-collapse: collapse;
+    min-width: 25%;
+    margin-bottom: 20px;
+    margin: auto;
+  }
+  th, td {
+    border: 1px solid #dddddd;
+    padding: 8px;
+    text-align: center;
+  }
+  th {
+    background-color: #fdfbfb;
+  }
+  /* tr:nth-child(even) {
+    background-color: #2b1616;
+  } */
+  tr:hover {
+    background-color: #fdfbfb;
+  }
+
+  li{
+    list-style-type: none;
+    text-align: center;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    font-size: x-large;
+  }
+
+
+BACKEND
+import mongoose from "mongoose";
+const MONGO_URL = "mongodb://127.0.0.1/studentMarkTest"
+
+const connect = async() => {
+    try {
+        await mongoose.connect(MONGO_URL)
+        console.log("DB Connected")
+    } catch (error) {
+        console.log("Error to connect to Mongoose", error.message)
+    }
+
+}
+
+export default connect;
+
+
+
+import mongoose from "mongoose";
+
+const StudentMarksSchema = new mongoose.Schema({
+    name: {
+        type: String,
+        required: true,
+    },
+    rollNo: {
+        type: Number,
+        required: true,
+    },
+    wadmarks: {
+        type: Number,
+        required: true,
+    },
+    ccmarks: {
+        type: Number,
+        required: true,
+    },
+    dsbdamarks: {
+        type: Number,
+        required: true,
+    },
+    cnsmarks: {
+        type: Number,
+        required: true,
+    },
+    aimarks: {
+        type: Number,
+        required: true,
+    },
+})
+
+const studentSchema = mongoose.model("Studentmarks", StudentMarksSchema)
+export default studentSchema
+
+
+
+
+import express from 'express';
+import cors from 'cors';
+import connect from './models/db.js';
+import Routes from './routes.js';
+
+const app = express()
+
+const PORT = 5000
+const corsOptions = {
+    origin: "http://localhost:5173"
+}
+
+app.use(cors(corsOptions));
+app.use(express.json())
+app.use('/', Routes)
+
+connect()
+app.listen(PORT , () => {
+    console.log(`Server listening on ${PORT}`)
+})
+
+
+
+
+import mongoose from "mongoose";
+import express from "express";
+import studentSchema from "./models/studentSchema.js";
+
+const router = express.Router();
+
+router.post('/insert', async (req, res) => {
+    try {
+        const { name, rollNo, wadmarks, ccmarks, dsbdamarks, cnsmarks, aimarks } = req.body
+
+        const data = await studentSchema.create({
+            name,
+            rollNo,
+            wadmarks,
+            ccmarks,
+            dsbdamarks,
+            cnsmarks,
+            aimarks
+        })
+        res.status(200).json({ msg: "Marks Added successfully" })
+    } catch (error) {
+        res.status(500).json({ msg: "Error" })
+    }
+})
+
+router.get('/list', async (req, res) => {
+    try {
+        const students = await studentSchema.find()
+        res.status(200).json({ students })
+    } catch (error) {
+        res.status(500).json({ msg: "Error" })
+    }
+})
+
+router.get('/dsbda', async (req, res) => {
+    try {
+        const students = await studentSchema.find({
+            dsbdamarks: { $gt: 20 }
+        })
+        const name = students.map(student => student.name)
+        res.status(200).json({ name })
+    } catch (error) {
+        res.status(500).json({ msg: "Error" })
+    }
+})
+
+router.get('/allSubjects', async (req, res) => {
+    try {
+        const students = await studentSchema.find({
+            $and: [
+                { wadmarks: { $gt: 20 } },
+                { ccmarks: { $gt: 20 } },
+                { dsbdamarks: { $gt: 20 } },
+                { cnsmarks: { $gt: 20 } },
+                { aimarks: { $gt: 20 } },
+            ]
+        })
+        const name = students.map(student => student.name)
+        res.status(200).json({ name })
+    } catch (error) {
+        res.status(500).json({ msg: "Error" })
+    }
+})
+
+router.get('/lessThan', async (req, res) => {
+    try {
+        const students = await studentSchema.find({
+            $and: [
+                { wadmarks: { $lt: 40 } },
+                { dsbdamarks: { $lt: 40 } },
+            ]
+        })
+        const name = students.map(student => student.name)
+        res.status(200).json({ name })
+    } catch (error) {
+        res.status(500).json({ msg: "Error" })
+    }
+})
+
+router.patch('/update/:rollNo', async (req, res) => {
+    try {
+        const { rollNo } = req.params
+
+        await studentSchema.updateOne({ rollNo }, {
+            $inc: {
+                wadmarks: 10,
+                ccmarks: 10,
+                dsbdamarks: 10,
+                cnsmarks: 10,
+                aimarks: 10,
+            }
+        })
+        res.status(200).json({ msg: `Marks Update successfully for ${rollNo}` })
+    } catch (error) {
+        res.status(500).json({ msg: "Error" })
+    }
+})
+
+router.delete('/delete/:rollNo', async (req, res) => {
+    try {
+        const { rollNo } = req.params
+
+        await studentSchema.deleteOne({ rollNo })
+        res.status(200).json({ msg: `${rollNo} Deleted Successfully` })
+    } catch (error) {
+        res.status(500).json({ msg: "Error" })
+    }
+})
+export default router
+

@@ -1,0 +1,9 @@
+Angular
+
+ng new angular-tour-of-heroes
+ng generate component hero-detail
+ng serve
+
+
+
+npm create vite@latest
